@@ -1,0 +1,131 @@
+{
+  "voxel_count": 117514,
+  "sha256_vox": "0eb87940b5f2a14d55189a27481276b95198c9ed5883bd5dc305a2e927701d43",
+  "bounding_box": {
+    "x": [
+      0,
+      160
+    ],
+    "y": [
+      0,
+      112
+    ],
+    "z": [
+      0,
+      160
+    ]
+  },
+  "per_material": {
+    "MARBLE_WHITE": 45519,
+    "MARBLE_SHADE": 15905,
+    "CONCRETE": 1207,
+    "MARBLE_DARK": 669,
+    "WATER": 1731,
+    "OPENING": 324,
+    "GOLD": 44,
+    "GRASS": 15740,
+    "FOLIAGE": 3579,
+    "GRANITE": 2495,
+    "LATTICE": 72,
+    "HILL": 30115,
+    "ROSE": 114
+  },
+  "checks": {
+    "C1": {
+      "pass": true,
+      "detail": "4 minaret components"
+    },
+    "C2": {
+      "pass": true,
+      "detail": "shafts [86, 86, 86, 86], top 90"
+    },
+    "C3": {
+      "pass": true,
+      "detail": "4/4 crescents"
+    },
+    "C4": {
+      "pass": true,
+      "detail": "centres [(46.0, 46.0), (46.0, 114.0), (114.0, 46.0), (114.0, 114.0)]"
+    },
+    "C5": {
+      "pass": true,
+      "detail": "45deg mismatch 0/7344 over octagonal body Y=10..23"
+    },
+    "C6": {
+      "pass": true,
+      "detail": "hall peak Y=45"
+    },
+    "C7": {
+      "pass": true,
+      "detail": "area Y43=68 vs Y10=540 (12.6%)"
+    },
+    "C8": {
+      "pass": true,
+      "detail": "top-layer extent X=5 Z=29"
+    },
+    "C9": {
+      "pass": true,
+      "detail": "105 concrete voxels at Y>=40 within 8 of centre"
+    },
+    "C10": {
+      "pass": true,
+      "detail": "{'+X': True, '-X': True, '+Z': True, '-Z': True}"
+    },
+    "C11": {
+      "pass": true,
+      "detail": "6 water features, jet=True"
+    },
+    "C12": {
+      "pass": true,
+      "detail": "green=19433 sides={'+X': True, '-X': True, '+Z': True, '-Z': True}"
+    },
+    "C13": {
+      "pass": true,
+      "detail": "foliage=3579 rose=114"
+    },
+    "C14": {
+      "pass": true,
+      "detail": "70 isolated columns"
+    },
+    "C15": {
+      "pass": true,
+      "detail": "heights 8..34, ridgelines 28/34"
+    },
+    "C16": {
+      "pass": true,
+      "detail": "across=11x11 h=12 jali_faces=8 doors=2 podium=4 vs garden 1"
+    },
+    "C17": {
+      "pass": true,
+      "detail": "granite above paving level: 0"
+    },
+    "C18": {
+      "pass": true,
+      "detail": "orphans=0"
+    },
+    "C19": {
+      "pass": true,
+      "detail": "sha256=0eb87940b5f2a14d..."
+    },
+    "C20": {
+      "pass": true,
+      "detail": "params round-trip reproduces identical vox"
+    },
+    "C21": {
+      "pass": true,
+      "detail": "out-of-bounds=0"
+    },
+    "C22": {
+      "pass": true,
+      "detail": "voxels=117514"
+    },
+    "C23": {
+      "pass": true,
+      "detail": "parsed size=(160, 112, 160) voxels=117514 palette=255"
+    },
+    "C24": {
+      "pass": true,
+      "detail": "1261x821, 32 sampled colours"
+    }
+  }
+}

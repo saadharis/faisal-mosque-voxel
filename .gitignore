@@ -1,0 +1,11 @@
+# build artifacts produced by the pipeline in src/
+src/scene_data.json
+src/faisal_mosque_scene.html
+src/faisal_mosque_scene_standalone.html
+src/faisal_mosque_v*.vox
+src/faisal_mosque_v*.png
+src/faisal_mosque_v*_front.txt
+src/faisal_mosque_v*_top.txt
+src/faisal_mosque_rebuild.vox
+src/__pycache__/
+__pycache__/

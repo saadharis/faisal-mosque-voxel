@@ -29,11 +29,44 @@ browser with WebGL + ES-module importmaps: Chrome / Edge / Firefox / Safari 16+.
 | `faisal_mosque.vox` | The MagicaVoxel model (117,514 voxels, 32-colour palette) |
 | `golden-hour.png` / `night.png` | Preview stills |
 
-## How it was built
+## The pipeline (`src/`)
 
-A single-file, stdlib-only Python generator produces the voxel model (octagonal
-prayer hall, tent-shell roof, four pencil minarets with crescent finials, courtyard,
-water pools, gardens, Gaussian Margalla Hills) and self-validates it against 24
-structural checks. Surface voxels are culled and packed into the HTML; the Three.js
-renderer uses instanced meshes, a custom sky-dome shader, directional sun/moon
-lighting with shadow maps, ACES tone mapping, and a warm material grade for golden hour.
+Everything is reproducible from source. The build is a 4-stage chain, all Python 3
+(voxel generator is **stdlib-only** — no numpy/Pillow):
+
+```bash
+cd src
+
+# 1. Generate the voxel model + run 24 self-validation checks  -> 24/24 PASS
+python faisal_mosque_voxel.py --params params_final.json --tag final
+
+# 2. Cull interior voxels, pack surface voxels (117,514 -> 59,518) -> scene_data.json
+python export_scene_data.py
+
+# 3. Build the self-contained Three.js day-night scene (CDN importmap) -> ~177 KB
+python gen_scene.py
+
+# 4. Inline Three.js as base64 -> fully-offline single file -> ~1.9 MB
+python build_standalone.py
+```
+
+| File | Role |
+|---|---|
+| `faisal_mosque_voxel.py` | Procedural voxel generator + `.vox` writer + stdlib PNG renderer + 24 structural checks (C1–C24) |
+| `params_final.json` | The converged parameter set (spec-pinned + tuned free knobs) |
+| `export_scene_data.py` | Surface-voxel culling + zlib/base64 packing |
+| `gen_scene.py` | Three.js scene generator (instanced meshes, sky-dome shader, sun/moon lighting, day-night cycle) |
+| `build_standalone.py` | Inlines the CDN deps into a zero-network single file |
+| `three.module.js`, `OrbitControls.js` | Pinned Three.js r160 deps used by stage 4 |
+| `faisal_mosque_vfinal_stats.json` | Proof: 24/24 checks, 117,514 voxels, sha256 `0eb87940…` |
+
+The generator is deterministic: the same params reproduce a byte-identical `.vox`
+(verified by the C19/C20 round-trip checks), and the full chain reproduces the
+published `index.html` byte-for-byte (sha256 `9832b145…`).
+
+### The 24 checks
+
+Octagon invariance, not-a-dome area ratio, ridge-not-spike taper, minaret monotonic
+taper, crescent connectivity, hill height bounds, door/opening counts, connected-component
+counts, out-of-bounds, voxel totals, `.vox` parse round-trip, and PNG render sanity —
+computed from the grid, never hard-coded.
