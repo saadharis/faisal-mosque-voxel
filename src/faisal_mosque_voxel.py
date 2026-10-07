@@ -607,7 +607,7 @@ def write_vox(model, grid, path):
     xyz_payload = struct.pack("<I", len(xyzis)) + b"".join(
         struct.pack("<BBBB", x, y, z, c) for (x, y, z, c) in xyzis)
     size_payload = struct.pack("<III", GX, GY, GZ)
-    rgba_payload = bytearray(4 * 255)
+    rgba_payload = bytearray(4 * 256)   # the format requires a full 256-entry table
     for i, (_, rgb, a) in enumerate(PALETTE):
         off = i * 4  # RGBA chunk starts at colour index 1
         rgba_payload[off] = (rgb >> 16) & 0xFF
@@ -620,24 +620,33 @@ def write_vox(model, grid, path):
         (b"RGBA", bytes(rgba_payload), 0),
     ]
     # Chunk header = id(4) + content_size(4) + children_size(4).
-    # MAIN: content_size=0, children_size = 4 (child count) + all child chunks.
-    children_size = 4
+    # MAIN is the container: content_size=0, and children_size covers the child
+    # chunks only. The format has NO child-count field -- MagicaVoxel walks the
+    # children by consuming children_size -- so an extra 4-byte count here makes
+    # the file unreadable to standard readers (the first child header is read 4
+    # bytes late and the whole walk derails).
+    children_size = 0
     for cid, payload, cs in chunks:
         children_size += 12 + len(payload) + cs
     body = b"MAIN" + struct.pack("<II", 0, children_size)
-    body += struct.pack("<I", len(chunks))
     for cid, payload, cs in chunks:
         body += cid + struct.pack("<II", len(payload), cs) + payload
-    data = b"VOX " + struct.pack("<I", 100) + body
+    # Version 150 is the classic MagicaVoxel version that every reader accepts
+    # (200 is also valid, but several libraries still only accept 150).
+    data = b"VOX " + struct.pack("<I", 150) + body
     with open(path, "wb") as f:
         f.write(data)
     return len(xyzis), data
 
 
 def parse_vox(data):
-    """Minimal independent reader used by check C23."""
+    """Independent reader used by check C23, following the MagicaVoxel layout:
+    'VOX ' + version, then MAIN (content_size 0, children_size covering the
+    children), then the child chunks at the top level. No child-count field."""
     assert data[:4] == b"VOX ", "bad magic"
-    pos = 8  # skip version
+    version = struct.unpack("<I", data[4:8])[0]
+    pos = 8
+
     def read_chunk():
         nonlocal pos
         cid = data[pos:pos + 4]
@@ -646,13 +655,12 @@ def parse_vox(data):
         payload = data[pos:pos + psize]
         pos += psize
         return cid, payload, csize
-    cid, payload, csize = read_chunk()
-    assert cid == b"MAIN"
-    # MAIN content = 4-byte child count; children follow at top level
-    nchild = struct.unpack("<I", data[pos:pos + 4])[0]
-    pos += 4
+
+    cid, _payload, children = read_chunk()
+    assert cid == b"MAIN", "first chunk must be MAIN"
+    end = pos + children  # the children occupy exactly children_size bytes
     size = xyz = rgba = None
-    for _ in range(nchild):
+    while pos < end:
         c, p, _ = read_chunk()
         if c == b"SIZE":
             size = struct.unpack("<III", p)
@@ -660,7 +668,8 @@ def parse_vox(data):
             xyz = struct.unpack("<I", p[:4])[0]
         elif c == b"RGBA":
             rgba = len(p) // 4
-    return size, xyz, rgba
+    assert pos == end, "children_size does not match the child chunks"
+    return version, size, xyz, rgba
 
 
 # ---------------------------------------------------------------------------
@@ -1081,10 +1090,21 @@ def run_checks(model, grid, vox_bytes, vox_count, png_path, params, second_build
     # C22: voxel count range
     add("C22", 40000 <= vox_count <= 1500000, f"voxels={vox_count}")
 
-    # C23: .vox parses, count matches
-    size, n, rgba = parse_vox(vox_bytes)
-    add("C23", size == (GX, GY, GZ) and n == vox_count and rgba >= len(PALETTE),
-        f"parsed size={size} voxels={n} palette={rgba}")
+    # C23: .vox parses AND conforms to the format's fixed invariants
+    # (version 150/200, MAIN carrying no content of its own, a full 256-entry
+    # RGBA table). The earlier version of this check accepted any version and
+    # only required rgba >= len(PALETTE), so a file that no standard reader
+    # could open still passed. vox_bytes[20:24] must be b"SIZE": that is the
+    # direct regression guard that MAIN's header is 12 bytes, not 16.
+    version, size, n, rgba = parse_vox(vox_bytes)
+    add("C23",
+        version in (150, 200)
+        and size == (GX, GY, GZ)
+        and n == vox_count
+        and rgba == 256
+        and vox_bytes[20:24] == b"SIZE",
+        f"version={version} size={size} voxels={n} palette={rgba} "
+        f"first_child={vox_bytes[20:24].decode('latin1')}")
 
     # C24: PNG written, >=1024x768, >=8 distinct colours
     try:
