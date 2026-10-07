@@ -26,7 +26,7 @@ browser with WebGL + ES-module importmaps: Chrome / Edge / Firefox / Safari 16+.
 |---|---|
 | `index.html` | The scene — fully offline (Three.js inlined as base64, ~1.9 MB) |
 | `cdn-version.html` | Lighter version (~177 KB) that pulls Three.js from a CDN |
-| `faisal_mosque.vox` | The MagicaVoxel model (117,514 voxels, 32-colour palette) |
+| `faisal_mosque.vox` | The MagicaVoxel model (117,514 voxels, 13-colour palette in a 256-slot table) |
 | `golden-hour.png` / `night.png` | Preview stills |
 
 ## The pipeline (`src/`)
@@ -58,7 +58,7 @@ python build_standalone.py
 | `gen_scene.py` | Three.js scene generator (instanced meshes, sky-dome shader, sun/moon lighting, day-night cycle) |
 | `build_standalone.py` | Inlines the CDN deps into a zero-network single file |
 | `three.module.js`, `OrbitControls.js` | Pinned Three.js r160 deps used by stage 4 |
-| `faisal_mosque_vfinal_stats.json` | Proof: 24/24 checks, 117,514 voxels, sha256 `0eb87940…` |
+| `faisal_mosque_vfinal_stats.json` | Proof: 24/24 checks, 117,514 voxels, sha256 `1b0a7d2b…` |
 
 The generator is deterministic: the same params reproduce a byte-identical `.vox`
 (verified by the C19/C20 round-trip checks), and the full chain reproduces the

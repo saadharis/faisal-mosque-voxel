@@ -1,6 +1,6 @@
 {
   "voxel_count": 117514,
-  "sha256_vox": "0eb87940b5f2a14d55189a27481276b95198c9ed5883bd5dc305a2e927701d43",
+  "sha256_vox": "1b0a7d2be7acb7abee92c7fcbb83cc96c60ca2606401e10980f6184c40bde28e",
   "bounding_box": {
     "x": [
       0,
@@ -105,7 +105,7 @@
     },
     "C19": {
       "pass": true,
-      "detail": "sha256=0eb87940b5f2a14d..."
+      "detail": "sha256=1b0a7d2be7acb7ab..."
     },
     "C20": {
       "pass": true,
@@ -121,7 +121,7 @@
     },
     "C23": {
       "pass": true,
-      "detail": "parsed size=(160, 112, 160) voxels=117514 palette=255"
+      "detail": "version=150 size=(160, 112, 160) voxels=117514 palette=256 first_child=SIZE"
     },
     "C24": {
       "pass": true,
